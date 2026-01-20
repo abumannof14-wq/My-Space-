@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Space</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/9963/9963350.png" type="image/x-icon">
+</head>
+<body class="text-white">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="glass-effect w-full max-w-md mx-4 rounded-2xl p-6 md:p-8 shadow-2xl">
+            <div class="text-center mb-6 md:mb-8">
+                <div class="flex justify-center items-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-300 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-3xl text-white"></i>
+                    </div>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold">My<span class="text-green-400"> Space</span></h1>
+                <p class="text-gray-400 mt-2 text-sm md:text-base">Secure Admin Dashboard v1.0.0</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="systemId" class="block text-gray-300 mb-2">System ID</label>
+                    <input type="text" id="systemId" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter System ID">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-gray-300 mb-2">Password</label>
+                    <input type="password" id="password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter Password">
+                </div>
+                
+                <div id="loginError" class="text-red-400 text-sm text-center hidden">
+                    <i class="fas fa-exclamation-circle mr-2"></i> Invalid System ID or Password
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold py-3 rounded-lg transition-all duration-200">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Access System
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <button id="forgotPasswordBtn" class="text-green-400 hover:text-green-300 text-sm transition">
+                    <i class="fas fa-key mr-2"></i>Forgot Password?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Modal -->
+    <div id="passwordResetModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
+        <div class="glass-effect w-full max-w-md mx-4 rounded-2xl p-6 md:p-8 shadow-2xl">
+            <!-- Step 1: Email Input -->
+            <div id="resetStep1" class="reset-step active">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-green-400">Password Recovery</h2>
+                    <p class="text-gray-400 text-sm mt-1">Enter your registered email address</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="resetEmail" class="block text-gray-300 mb-2">Email Address</label>
+                    <input type="text" id="resetEmail" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter this Acc's gmail">
+                    <p class="text-gray-500 text-sm mt-1">Only registered email will work</p>
+                </div>
+                
+                <div id="resetEmailError" class="text-red-400 text-sm text-center mb-4 hidden">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <span id="resetEmailErrorText"></span>
+                </div>
+                
+                <div class="flex space-x-3 mobile-stack">
+                    <button id="closeResetModal" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg transition mobile-full-width mobile-mt-4">
+                        Cancel
+                    </button>
+                    <button id="sendResetCodeBtn" class="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-3 rounded-lg transition mobile-full-width">
+                        Send Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Code Verification -->
+            <div id="resetStep2" class="reset-step">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-green-400">Verify Code</h2>
+                    <p class="text-gray-400 text-sm mt-1">Enter the 6-digit code sent to your email</p>
+                </div>
+                
+                <div class="mb-4 p-4 bg-gray-800 rounded-lg border border-green-700">
+                    <p class="text-green-400 text-center mb-2">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Verification Code: <span class="font-bold code-display" id="verificationCodeDisplay">123456</span>
+                    </p>
+                    <p class="text-gray-400 text-sm text-center">
+                        Sent to: <span class="text-green-300" id="sentToEmail">abumannof14@gmail.com</span>
+                    </p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="verifyCode" class="block text-gray-300 mb-2">Enter Verification Code</label>
+                    <input type="text" id="verifyCode" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-center text-xl code-display" maxlength="6" placeholder="000000">
+                </div>
+                
+                <div id="codeError" class="text-red-400 text-sm text-center mb-4 hidden">
+                    <i class="fas fa-exclamation-circle mr-2"></i> Invalid code! Please try again.
+                </div>
+                
+                <div class="flex space-x-3 mobile-stack">
+                    <button id="backToEmailBtn" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg transition mobile-full-width mobile-mt-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button id="verifyCodeBtn" class="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-3 rounded-lg transition mobile-full-width">
+                        Verify Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: New Password -->
+            <div id="resetStep3" class="reset-step">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-green-400">New Password</h2>
+                    <p class="text-gray-400 text-sm mt-1">Create your new password</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="newPassword" class="block text-gray-300 mb-2">New Password</label>
+                    <input type="password" id="newPassword" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label for="confirmNewPassword" class="block text-gray-300 mb-2">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                
+                <div id="passwordResetError" class="text-red-400 text-sm text-center mb-4 hidden">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <span id="passwordResetErrorText"></span>
+                </div>
+                
+                <div id="passwordResetSuccess" class="text-green-400 text-sm text-center mb-4 hidden">
+                    <i class="fas fa-check-circle mr-2"></i> Password updated successfully!
+                </div>
+                
+                <div class="flex space-x-3 mobile-stack">
+                    <button id="backToCodeBtn" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg transition mobile-full-width mobile-mt-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button id="saveNewPasswordBtn" class="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-3 rounded-lg transition mobile-full-width">
+                        Save Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main App (Initially Hidden) -->
+    <div id="mainApp" class="hidden">
+        <div class="flex min-h-screen">
+            <!-- Sidebar (Hidden on Mobile) -->
+            <aside class="hidden md:flex w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+                <div class="p-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-300 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        <h1 class="text-xl font-bold">My<span class="text-green-400"> Space</span></h1>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-1">Hello, Abdumannof</p>
+                </div>
+                
+                <nav class="flex-1 px-4">
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" data-page="dashboard" class="sidebar-item active flex items-center px-4 py-3 text-gray-200 hover:text-white rounded-lg">
+                                <i class="fas fa-tachometer-alt w-5 mr-3 text-green-400"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="data" class="sidebar-item flex items-center px-4 py-3 text-gray-200 hover:text-white rounded-lg">
+                                <i class="fas fa-database w-5 mr-3 text-blue-400"></i>
+                                <span>Data</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="security" class="sidebar-item flex items-center px-4 py-3 text-gray-200 hover:text-white rounded-lg">
+                                <i class="fas fa-shield-alt w-5 mr-3 text-red-400"></i>
+                                <span>Security</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="account" class="sidebar-item flex items-center px-4 py-3 text-gray-200 hover:text-white rounded-lg">
+                                <i class="fas fa-user-circle w-5 mr-3 text-yellow-400"></i>
+                                <span>Account</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="p-6 border-t border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                        <span class="text-green-400 text-sm font-medium" id="systemStatusText">ACTIVE</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-1">System Operational</p>
+                </div>
+            </aside>
+            
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto">
+                <!-- Header -->
+                <header class="sticky top-0 z-10 glass-effect border-b border-gray-800 px-4 md:px-8 py-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <!-- Mobile Menu Button -->
+                            <button id="mobileMenuBtn" class="md:hidden mr-4 text-gray-400 hover:text-white">
+                                <i class="fas fa-bars text-xl"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-lg md:text-xl font-bold" id="pageTitle">Dashboard</h2>
+                                <p class="text-gray-400 text-xs md:text-sm" id="pageSubtitle">System Overview</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 md:space-x-4">
+                            <!-- Search Bar -->
+                            <div class="relative">
+                                <input type="text" id="globalSearchInput" class="w-32 md:w-64 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Search...">
+                                <i class="fas fa-search absolute left-3 top-2.5 text-gray-500 text-sm"></i>
+                            </div>
+                            <span class="text-gray-400 text-xs md:text-sm hidden md:inline">v1.0.0</span>
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <button id="logoutBtn" class="px-3 md:px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs md:text-sm transition">
+                                <i class="fas fa-sign-out-alt mr-1 md:mr-2"></i><span class="hidden md:inline">Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+                
+                <!-- Mobile Sidebar Menu -->
+                <div id="mobileSidebar" class="md:hidden fixed inset-0 bg-gray-900 z-40 transform -translate-x-full transition-transform duration-300">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-8">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-300 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-white"></i>
+                                </div>
+                                <h1 class="text-xl font-bold">My<span class="text-green-400"> Space</span></h1>
+                            </div>
+                            <button id="closeMobileMenu" class="text-gray-400 hover:text-white text-2xl">
+                                &times;
+                            </button>
+                        </div>
+                        
+                        <nav class="mb-8">
+                            <ul class="space-y-2">
+                                <li>
+                                    <a href="#" data-page="dashboard" class="sidebar-item active flex items-center px-4 py-4 text-gray-200 hover:text-white rounded-lg text-lg">
+                                        <i class="fas fa-tachometer-alt w-6 mr-4 text-green-400"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-page="data" class="sidebar-item flex items-center px-4 py-4 text-gray-200 hover:text-white rounded-lg text-lg">
+                                        <i class="fas fa-database w-6 mr-4 text-blue-400"></i>
+                                        <span>Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-page="security" class="sidebar-item flex items-center px-4 py-4 text-gray-200 hover:text-white rounded-lg text-lg">
+                                        <i class="fas fa-shield-alt w-6 mr-4 text-red-400"></i>
+                                        <span>Security</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-page="account" class="sidebar-item flex items-center px-4 py-4 text-gray-200 hover:text-white rounded-lg text-lg">
+                                        <i class="fas fa-user-circle w-6 mr-4 text-yellow-400"></i>
+                                        <span>Account</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                        
+                        <div class="border-t border-gray-800 pt-6">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                <span class="text-green-400 text-sm font-medium" id="mobileSystemStatus">ACTIVE</span>
+                            </div>
+                            <p class="text-gray-500 text-xs mt-1">System Operational</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page Content -->
+                <div class="p-4 md:p-8">
+                    <!-- Security Alert -->
+                    <div id="securityAlert" class="hidden bg-gradient-to-r from-red-900/50 to-red-800/30 border border-red-700 rounded-xl p-4 mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-red-400 text-2xl mr-4 mt-1"></i>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-red-300 text-lg mb-1 blink">CRITICAL SECURITY ALERT</h4>
+                                <p class="text-red-400 text-sm md:text-base">System security level is too low (below 20%). Please reduce the number of dashboard items immediately to restore system security!</p>
+                                <div class="flex items-center mt-3">
+                                    <div class="progress-bar bg-gray-700 flex-1 mr-4" style="height: 8px;">
+                                        <div class="progress-fill bg-red-500" id="criticalProgressBar"></div>
+                                    </div>
+                                    <span class="text-red-300 font-bold text-sm md:text-base" id="criticalLevelText">0%</span>
+                                </div>
+                            </div>
+                            <button id="dismissAlert" class="text-gray-400 hover:text-white ml-2 md:ml-4">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Dashboard Page -->
+                    <div id="dashboardPage" class="page-content fade-in">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+                            <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-gray-400 text-sm">Total Items</p>
+                                        <h3 class="text-2xl md:text-3xl font-bold mt-2" id="totalItemsCount">0</h3>
+                                    </div>
+                                    <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-cube text-blue-400 text-lg md:text-xl"></i>
+                                    </div>
+                                </div>
+                                <p class="text-green-400 text-xs mt-3 md:mt-4">
+                                    <i class="fas fa-arrow-up mr-1"></i>All items stored securely
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-gray-400 text-sm">Security Level</p>
+                                        <h3 class="text-2xl md:text-3xl font-bold mt-2" id="securityLevelText">100%</h3>
+                                    </div>
+                                    <div class="w-10 h-10 md:w-12 md:h-12 bg-green-900/30 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-green-400 text-lg md:text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3 md:mt-4">
+                                    <div class="progress-bar bg-gray-700">
+                                        <div class="progress-fill" id="securityProgressBar" style="width: 100%"></div>
+                                    </div>
+                                    <p class="text-gray-400 text-xs mt-2">High - System secured</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-gray-400 text-sm">System Status</p>
+                                        <h3 class="text-2xl md:text-3xl font-bold mt-2" id="systemStatusDisplay">ACTIVE</h3>
+                                    </div>
+                                    <div class="w-10 h-10 md:w-12 md:h-12 bg-gray-700 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-server text-white text-lg md:text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3 md:mt-4">
+                                    <div class="status-active px-3 py-1 rounded-full text-xs font-medium inline-block" id="systemStatusBadge">
+                                        OPERATIONAL
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 md:mt-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold">Items Dashboard</h3>
+                                <div class="text-gray-400 text-sm">
+                                    <span id="itemsCountDisplay">0 items</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" id="dashboardItemsGrid">
+                                <!-- Items will be dynamically added here -->
+                                <div class="col-span-2 text-center py-8 md:py-12 text-gray-500">
+                                    <i class="fas fa-cube text-3xl md:text-4xl mb-3 md:mb-4"></i>
+                                    <p>No items created yet. Go to the Data page to create your first item.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Page -->
+                    <div id="dataPage" class="page-content hidden fade-in">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                            <div class="lg:col-span-2">
+                                <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700 mb-6 md:mb-8">
+                                    <h3 class="text-lg font-bold mb-4 md:mb-6">Create New Item</h3>
+                                    
+                                    <form id="itemForm">
+                                        <div class="mb-4 md:mb-6">
+                                            <label for="itemName" class="block text-gray-300 mb-2">Name <span class="text-red-500">*</span></label>
+                                            <input type="text" id="itemName" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <p class="text-gray-500 text-sm mt-1">Enter a unique name for the item</p>
+                                        </div>
+                                        
+                                        <div class="mb-4 md:mb-6">
+                                            <label for="itemAbout" class="block text-gray-300 mb-2">About <span class="text-red-500">*</span></label>
+                                            <textarea id="itemAbout" rows="3" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                            <p class="text-gray-500 text-sm mt-1">Provide a description for the item</p>
+                                        </div>
+                                        
+                                        <div class="mb-4 md:mb-6">
+                                            <label for="itemImage" class="block text-gray-300 mb-2">Image URL</label>
+                                            <input type="text" id="itemImage" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com/image.jpg">
+                                            <p class="text-gray-500 text-sm mt-1">Optional: Provide a direct image URL</p>
+                                        </div>
+                                        
+                                        <div class="mb-4 md:mb-6" id="imagePreviewContainer" style="display: none;">
+                                            <label class="block text-gray-300 mb-2">Image Preview</label>
+                                            <div class="border border-gray-600 rounded-lg p-2">
+                                                <img id="imagePreview" src="" alt="Image Preview" class="image-preview w-full">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex justify-end">
+                                            <button type="submit" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-medium rounded-lg transition">
+                                                <i class="fas fa-plus-circle mr-2"></i> Create Item
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                    <div class="flex justify-between items-center mb-4 md:mb-6">
+                                        <h3 class="text-lg font-bold">Recently Created</h3>
+                                        <span class="text-gray-400 text-sm" id="recentCount">0 items</span>
+                                    </div>
+                                    
+                                    <div class="space-y-4 max-h-80 md:max-h-96 overflow-y-auto pr-2" id="recentItemsList">
+                                        <!-- Items will be dynamically added here -->
+                                        <div class="text-center py-6 md:py-8 text-gray-500">
+                                            <i class="fas fa-cube text-2xl md:text-3xl mb-2 md:mb-3"></i>
+                                            <p>No items created yet. Create your first item!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="md:sticky md:top-24">
+                                    <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700 mb-4 md:mb-6">
+                                        <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
+                                        <button id="viewAllItemsBtn" class="w-full mb-3 md:mb-4 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition flex items-center justify-center">
+                                            <i class="fas fa-list mr-2"></i> View All Items
+                                        </button>
+                                        <button id="clearItemsBtn" class="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium rounded-lg transition flex items-center justify-center">
+                                            <i class="fas fa-trash-alt mr-2"></i> Clear All Items
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                        <h3 class="text-lg font-bold mb-4">Item Stats</h3>
+                                        <div class="space-y-3 md:space-y-4">
+                                            <div>
+                                                <p class="text-gray-400 text-sm">Total Items</p>
+                                                <p class="text-xl md:text-2xl font-bold" id="dataTotalItems">0</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-400 text-sm">With Images</p>
+                                                <p class="text-xl md:text-2xl font-bold" id="itemsWithImages">0</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-400 text-sm">Last Created</p>
+                                                <p class="text-xs md:text-sm" id="lastCreatedDate">Never</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Page -->
+                    <div id="securityPage" class="page-content hidden fade-in">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                            <div class="lg:col-span-2">
+                                <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700 mb-6 md:mb-8">
+                                    <div class="flex justify-between items-center mb-4 md:mb-6">
+                                        <h3 class="text-lg font-bold">System Console</h3>
+                                        <div class="flex space-x-2 md:space-x-3">
+                                            <button id="clearConsoleBtn" class="px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm transition">
+                                                <i class="fas fa-trash-alt mr-1 md:mr-2"></i> Clear
+                                            </button>
+                                            <button id="addTestLogBtn" class="px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition">
+                                                <i class="fas fa-plus mr-1 md:mr-2"></i> Test Log
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-black rounded-lg p-3 md:p-4 console-font h-64 md:h-96 overflow-y-auto" id="consoleOutput">
+                                        <div class="text-green-400 mb-2">> System initialized. GREEN_CORE Admin Dashboard v1.0.0</div>
+                                        <div class="text-green-400 mb-2">> Authentication successful. User: a1uz_2014</div>
+                                        <div class="text-green-400 mb-2">> Security subsystem active. All protections enabled.</div>
+                                        <div class="text-blue-400 mb-2">> Dashboard ready. Awaiting user commands.</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                    <h3 class="text-lg font-bold mb-4">Security Controls</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                        <div>
+                                            <button id="stopSystemBtn" class="w-full px-4 md:px-6 py-3 md:py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold rounded-lg transition flex items-center justify-center">
+                                                <i class="fas fa-power-off mr-2 md:mr-3"></i> STOP SYSTEM
+                                            </button>
+                                            <p class="text-gray-400 text-xs md:text-sm mt-2 text-center">Immediately halts all system operations</p>
+                                        </div>
+                                        <div>
+                                            <button id="runSecurityScanBtn" class="w-full px-4 md:px-6 py-3 md:py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold rounded-lg transition flex items-center justify-center">
+                                                <i class="fas fa-shield-alt mr-2 md:mr-3"></i> SECURITY SCAN
+                                            </button>
+                                            <p class="text-gray-400 text-xs md:text-sm mt-2 text-center">Run full system security check</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="md:sticky md:top-24">
+                                    <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700 mb-4 md:mb-6">
+                                        <h3 class="text-lg font-bold mb-4">Security Logs</h3>
+                                        <div class="space-y-2 md:space-y-3 max-h-60 md:max-h-80 overflow-y-auto pr-2" id="securityLogs">
+                                            <div class="text-green-400 text-sm">
+                                                <div class="flex">
+                                                    <span class="text-gray-500 mr-2">[12:30:45]</span>
+                                                    <span>System boot completed</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-green-400 text-sm">
+                                                <div class="flex">
+                                                    <span class="text-gray-500 mr-2">[12:31:10]</span>
+                                                    <span>User authentication successful</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-blue-400 text-sm">
+                                                <div class="flex">
+                                                    <span class="text-gray-500 mr-2">[12:32:05]</span>
+                                                    <span>Firewall rules applied</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+                                        <h3 class="text-lg font-bold mb-4">System Status</h3>
+                                        <div class="space-y-3 md:space-y-4">
+                                            <div>
+                                                <p class="text-gray-400 text-sm">Security Level</p>
+                                                <div class="flex items-center">
+                                                    <div class="progress-bar bg-gray-700 flex-1 mr-3">
+                                                        <div class="progress-fill" id="securityPageProgress" style="width: 100%"></div>
+                                                    </div>
+                                                    <span class="font-bold">100%</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-400 text-sm">System Status</p>
+                                                <div class="flex items-center mt-1">
+                                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                                    <span class="font-bold text-green-400">ACTIVE</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-400 text-sm">Last Scan</p>
+                                                <p class="text-xs md:text-sm">Just now</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Page -->
+                    <div id="accountPage" class="page-content hidden fade-in">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="bg-gray-800 rounded-xl p-6 md:p-8 border border-gray-700">
+                                <div class="flex flex-col items-center mb-8 md:mb-10">
+                                    <div class="avatar-ring w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mb-4 md:mb-6">
+                                        <img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff&size=128&bold=true" alt="Admin Avatar" class="w-full h-full object-cover" id="accountAvatar">
+                                    </div>
+                                    <h2 class="text-xl md:text-2xl font-bold" id="accountDisplayName">Administrator</h2>
+                                    <p class="text-gray-400 mt-1 text-sm md:text-base">System Administrator</p>
+                                    <div class="mt-3 px-3 md:px-4 py-1 bg-green-900/30 text-green-400 rounded-full text-xs md:text-sm">
+                                        <i class="fas fa-shield-alt mr-1 md:mr-2"></i>Full Access
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                                    <div>
+                                        <h3 class="text-lg font-bold mb-4 md:mb-6">Profile Information</h3>
+                                        
+                                        <form id="profileForm" class="space-y-4 md:space-y-6">
+                                            <div>
+                                                <label for="accountName" class="block text-gray-300 mb-2">Name</label>
+                                                <input type="text" id="accountName" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" value="Administrator">
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="accountId" class="block text-gray-300 mb-2">System ID</label>
+                                                <input type="text" id="accountId" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-gray-400" value="a1uz_2014" readonly>
+                                                <p class="text-gray-500 text-xs md:text-sm mt-1">System ID cannot be changed</p>
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="accountEmail" class="block text-gray-300 mb-2">Email</label>
+                                                <input type="email" id="accountEmail" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" value="admin@greencore.local">
+                                            </div>
+                                            
+                                            <div id="profileSuccess" class="text-green-400 text-sm hidden">
+                                                <i class="fas fa-check-circle mr-2"></i> Profile updated successfully
+                                            </div>
+                                            
+                                            <div id="profileError" class="text-red-400 text-sm hidden">
+                                                <i class="fas fa-exclamation-circle mr-2"></i> <span id="profileErrorText"></span>
+                                            </div>
+                                            
+                                            <div class="pt-4">
+                                                <button type="submit" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-medium rounded-lg transition">
+                                                    <i class="fas fa-save mr-2"></i> Save Profile
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 class="text-lg font-bold mb-4 md:mb-6">Change Password</h3>
+                                        
+                                        <form id="passwordForm" class="space-y-4 md:space-y-6">
+                                            <div>
+                                                <label for="currentPassword" class="block text-gray-300 mb-2">Current Password</label>
+                                                <input type="password" id="currentPassword" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="newPassword" class="block text-gray-300 mb-2">New Password</label>
+                                                <input type="password" id="newPassword" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="confirmPassword" class="block text-gray-300 mb-2">Confirm New Password</label>
+                                                <input type="password" id="confirmPassword" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            </div>
+                                            
+                                            <div id="passwordError" class="text-red-400 text-sm hidden">
+                                                <i class="fas fa-exclamation-circle mr-2"></i> <span id="passwordErrorText"></span>
+                                            </div>
+                                            
+                                            <div id="passwordSuccess" class="text-green-400 text-sm hidden">
+                                                <i class="fas fa-check-circle mr-2"></i> Password updated successfully
+                                            </div>
+                                            
+                                            <div class="pt-4">
+                                                <button type="submit" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium rounded-lg transition">
+                                                    <i class="fas fa-key mr-2"></i> Change Password
+                                                </button>
+                                            </div>
+                                        </form>
+                                        
+                                        <div class="mt-8 md:mt-10 pt-6 md:pt-8 border-t border-gray-700">
+                                            <h3 class="text-lg font-bold mb-4">Account Security</h3>
+                                            <div class="space-y-3 md:space-y-4">
+                                                <div class="flex justify-between items-center">
+                                                    <div>
+                                                        <p class="text-gray-300">Last Login</p>
+                                                        <p class="text-gray-500 text-xs md:text-sm">Just now</p>
+                                                    </div>
+                                                    <span class="text-green-400 text-xs md:text-sm">Current Session</span>
+                                                </div>
+                                                <div class="flex justify-between items-center">
+                                                    <div>
+                                                        <p class="text-gray-300">Account Created</p>
+                                                        <p class="text-gray-500 text-xs md:text-sm">January 15, 2023</p>
+                                                    </div>
+                                                    <span class="text-blue-400 text-xs md:text-sm">Active</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <footer class="mt-8 md:mt-12 border-t border-gray-800 px-4 md:px-8 py-4 md:py-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <p class="text-gray-400 text-xs md:text-sm text-center md:text-left mb-2 md:mb-0">SYSTEM ACCESS GRANTED • GREEN_CORE</p>
+                        <p class="text-gray-400 text-xs md:text-sm text-center md:text-left">© 2023 GREEN_CORE Admin Dashboard</p>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+    
+    <!-- All Items Modal -->
+    <div id="allItemsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-xl border border-gray-700 w-full max-w-4xl mx-4 max-h-[80vh] overflow-hidden">
+            <div class="p-4 md:p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-lg md:text-xl font-bold">All Items (Total: <span id="modalTotalItems">0</span>)</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="p-4 md:p-6 overflow-y-auto max-h-[60vh]">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="pb-3 text-gray-400 font-medium text-sm md:text-base">Name</th>
+                                <th class="pb-3 text-gray-400 font-medium text-sm md:text-base hidden md:table-cell">About</th>
+                                <th class="pb-3 text-gray-400 font-medium text-sm md:text-base">Date</th>
+                                <th class="pb-3 text-gray-400 font-medium text-sm md:text-base hidden sm:table-cell">Image</th>
+                                <th class="pb-3 text-gray-400 font-medium text-sm md:text-base">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allItemsTable">
+                            <!-- Items will be dynamically added here -->
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-gray-500">
+                                    <i class="fas fa-cube text-xl md:text-2xl mb-2 block"></i>
+                                    <p>No items created yet.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="p-4 md:p-6 border-t border-gray-700 flex justify-end">
+                <button id="closeModalBottom" class="px-4 md:px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>
